@@ -3623,6 +3623,7 @@ const runStageAttempt = async (
       // still tees stderr to the container log; the captured value is never
       // persisted verbatim.
       captureStderrTail: 16_384,
+      logContext: { executionId, stageInstanceId, intentId, projectId },
       onStdout: (chunk) => cliOutput.write(chunk),
       spawnFn,
     });
@@ -3736,7 +3737,7 @@ const runStageAttempt = async (
   }
 
   const exitCode = result?.exitCode ?? 0;
-  logger.error('cli exit', {
+  logger[exitCode === 0 ? 'info' : 'error']('cli exit', {
     cli,
     stage: stageId,
     exitCode,
@@ -4528,6 +4529,7 @@ const runStageAttempt = async (
             prompt: repair.prompt,
             promptViaStdin: repair.promptViaStdin,
             captureStderrTail: 16_384,
+            logContext: { executionId, stageInstanceId, intentId, projectId },
             onStdout: (chunk) => repairSink.write(chunk),
             spawnFn,
           });
